@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ supplier.name }} | Inventory Intelligence Platform{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <h1>{{ supplier.name }}</h1>
+    <p class="text-muted">Supplier profile and linked products.</p>
+  </div>
+  <a class="btn btn-outline-primary" href="{{ url_for('suppliers.edit', supplier_id=supplier.id) }}">Edit</a>
+</div>
+<div class="panel narrow">
+  <dl class="row">
+    <dt class="col-sm-3">Email</dt><dd class="col-sm-9">{{ supplier.email or "-" }}</dd>
+    <dt class="col-sm-3">Phone</dt><dd class="col-sm-9">{{ supplier.phone or "-" }}</dd>
+    <dt class="col-sm-3">Address</dt><dd class="col-sm-9">{{ supplier.address or "-" }}</dd>
+  </dl>
+  <h2 class="section-title">Products</h2>
+  <ul class="list-group list-group-flush">
+    {% for product in supplier.products %}
+    <li class="list-group-item px-0 d-flex justify-content-between">
+      <a href="{{ url_for('inventory.detail', product_id=product.id) }}">{{ product.name }}</a>
+      <span class="text-muted">{{ product.sku }}</span>
+    </li>
+    {% else %}
+    <li class="list-group-item px-0 text-muted">No products assigned.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

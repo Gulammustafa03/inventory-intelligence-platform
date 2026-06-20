@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} | Inventory Intelligence Platform{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>{{ title }}</h1><p class="text-muted">Maintain complete product, SKU, pricing, and stock threshold data.</p></div></div>
+<div class="panel narrow">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="row g-3">
+      <div class="col-md-6">{{ form.name.label(class="form-label") }}{{ form.name(class="form-control") }}</div>
+      <div class="col-md-6">{{ form.sku.label(class="form-label") }}{{ form.sku(class="form-control") }}</div>
+      <div class="col-md-4">{{ form.price.label(class="form-label") }}{{ form.price(class="form-control") }}</div>
+      <div class="col-md-4">{{ form.quantity.label(class="form-label") }}{{ form.quantity(class="form-control") }}</div>
+      <div class="col-md-4">{{ form.minimum_stock.label(class="form-label") }}{{ form.minimum_stock(class="form-control") }}</div>
+      <div class="col-md-6">{{ form.category_id.label(class="form-label") }}{{ form.category_id(class="form-select") }}</div>
+      <div class="col-md-6">{{ form.supplier_id.label(class="form-label") }}{{ form.supplier_id(class="form-select") }}</div>
+      <div class="col-12">{{ form.description.label(class="form-label") }}{{ form.description(class="form-control", rows="4") }}</div>
+    </div>
+    <div class="mt-4 d-flex gap-2">
+      <button class="btn btn-primary" type="submit">{{ form.submit.label.text }}</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('inventory.index') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

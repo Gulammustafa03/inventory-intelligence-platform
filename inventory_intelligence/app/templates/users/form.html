@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} | Inventory Intelligence Platform{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>{{ title }}</h1><p class="text-muted">Assign users the least-privileged role required for their work.</p></div></div>
+<div class="panel narrow">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="row g-3">
+      <div class="col-md-6">{{ form.username.label(class="form-label") }}{{ form.username(class="form-control") }}</div>
+      <div class="col-md-6">{{ form.email.label(class="form-label") }}{{ form.email(class="form-control") }}</div>
+      <div class="col-md-6">{{ form.password.label(class="form-label") }}{{ form.password(class="form-control", placeholder="Leave blank to keep current password") }}</div>
+      <div class="col-md-6">{{ form.role_id.label(class="form-label") }}{{ form.role_id(class="form-select") }}</div>
+    </div>
+    <div class="mt-4 d-flex gap-2">
+      <button class="btn btn-primary" type="submit">{{ form.submit.label.text }}</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('users.index') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

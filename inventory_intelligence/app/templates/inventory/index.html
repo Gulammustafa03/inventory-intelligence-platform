@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Inventory | Inventory Intelligence Platform{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <h1>Inventory</h1>
+    <p class="muted">Smart search, stock health, supplier context, and SKU management.</p>
+  </div>
+  {% if current_user.has_role('Admin', 'Manager') %}
+  <a class="btn btn-primary" href="{{ url_for('inventory.create') }}"><i data-lucide="plus"></i>Add product</a>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <form class="toolbar premium-toolbar" method="get">
+    <div class="smart-search"><i data-lucide="search"></i><input class="form-control" name="q" value="{{ search }}"
+        placeholder="Search name, SKU, or description"></div>
+    <select class="form-select" aria-label="Filter">
+      <option>All stock</option>
+      <option>Low stock</option>
+      <option>Healthy</option>
+    </select>
+    <select class="form-select" aria-label="Sort">
+      <option>Newest first</option>
+      <option>Quantity high to low</option>
+      <option>Price high to low</option>
+    </select>
+    <div class="view-toggle" role="group" aria-label="View">
+      <button class="active" type="button" data-view="grid"><i data-lucide="layout-grid"></i></button>
+      <button type="button" data-view="table"><i data-lucide="table-2"></i></button>
+    </div>
+    <button class="btn btn-outline-primary" type="submit">Search</button>
+  </form>
+
+  <div class="product-grid" data-product-grid>
+    {% for product in products.items %}
+    <article class="product-card">
+      <div class="product-image"><i data-lucide="package"></i></div>
+      <div class="product-card-head">
+        <div><span class="eyebrow">{{ product.sku }}</span>
+          <h2><a href="{{ url_for('inventory.detail', product_id=product.id) }}">{{ product.name }}</a></h2>
+        </div>
+        {% if product.is_low_stock %}<span class="status-pill danger">Low</span>{% else %}<span
+          class="status-pill success">Healthy</span>{% endif %}
+      </div>
+      <p>{{ product.description or "No product description added." }}</p>
+      <div class="product-meta">
+        <div><span>Stock</span><strong>{{ product.quantity }}</strong></div>
+        <div><span>Supplier</span><strong>{{ product.supplier.name }}</strong></div>
+        <div><span>Price</span><strong>₹{{ "{:,.2f}".format(product.price or 0) }}</strong></div>
+      </div>
+      <div class="product-actions">
+        <button class="btn btn-outline-secondary" data-bs-toggle="modal"
+          data-bs-target="#stockModal{{ product.id }}">Update stock</button>
+        {% if current_user.has_role('Admin', 'Manager') %}
+        <a class="btn btn-outline-primary" href="{{ url_for('inventory.edit', product_id=product.id) }}">Edit</a>
+        {% endif %}
+      </div>
+    </article>
+    {% else %}
+    <div class="empty-state"><i data-lucide="search-x"></i><strong>No products found</strong><span>Create the first
+        product or adjust your search filters.</span></div>
+    {% endfor %}
+  </div>
+
+  <div class="table-responsive premium-table is-hidden" data-product-table>
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>SKU</th>
+          <th>Category</th>
+          <th>Supplier</th>
+          <th>Price</th>
+          <th>Qty</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products.items %}
+        <tr>
+          <td><a href="{{ url_for('inventory.detail', product_id=product.id) }}">{{ product.name }}</a></td>
+          <td>{{ product.sku }}</td>
+          <td>{{ product.category.name }}</td>
+          <td>{{ product.supplier.name }}</td>
+          <td>₹{{ "{:,.2f}".format(product.price or 0) }}</td>
+          <td>{{ product.quantity }}</td>
+          <td>{% if product.is_low_stock %}<span class="status-pill danger">Low</span>{% else %}<span
+              class="status-pill success">Healthy</span>{% endif %}</td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal"
+              data-bs-target="#stockModal{{ product.id }}">Stock</button>
+            {% if current_user.has_role('Admin', 'Manager') %}<a class="btn btn-sm btn-outline-primary"
+              href="{{ url_for('inventory.edit', product_id=product.id) }}">Edit</a>{% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8">
+            <div class="empty-state mini"><i data-lucide="search-x"></i><strong>No products found</strong><span>Try
+                another query.</span></div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% for product in products.items %}
+  <div class="modal fade" id="stockModal{{ product.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <form class="modal-content" method="post" action="{{ url_for('inventory.update_stock', product_id=product.id) }}">
+        {{ stock_form.hidden_tag() }}
+        <div class="modal-header">
+          <h5 class="modal-title">Update stock</h5><button type="button" class="btn-close"
+            data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label" for="quantity{{ product.id }}">Quantity for {{ product.name }}</label>
+          <input class="form-control" id="quantity{{ product.id }}" name="quantity" type="number" min="0"
+            value="{{ product.quantity }}" required>
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal"
+            type="button">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% with pagination=products, endpoint='inventory.index' %}
+  {% include "partials/pagination.html" %}
+  {% endwith %}
+</div>
+{% endblock %}

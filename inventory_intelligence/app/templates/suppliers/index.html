@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Suppliers | Inventory Intelligence Platform{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <h1>Suppliers</h1>
+    <p class="muted">Vendor performance, response quality, and supplied product coverage.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('suppliers.create') }}"><i data-lucide="plus"></i>Create supplier</a>
+</div>
+<div class="supplier-grid">
+  {% for supplier in suppliers %}
+  <article class="supplier-card">
+    <div class="supplier-top">
+      <div class="avatar">{{ supplier.name[0]|upper }}</div>
+      <div><h2><a href="{{ url_for('suppliers.detail', supplier_id=supplier.id) }}">{{ supplier.name }}</a></h2><p>{{ supplier.email or "No email" }}</p></div>
+      <span class="status-pill success">96%</span>
+    </div>
+    <div class="supplier-stats">
+      <div><span>Rating</span><strong>4.8</strong></div>
+      <div><span>Response</span><strong>2h</strong></div>
+      <div><span>Products</span><strong>{{ supplier.products|length }}</strong></div>
+    </div>
+    <div class="score-line"><span style="width: 86%"></span></div>
+    <div class="product-actions">
+      <a class="btn btn-outline-primary" href="{{ url_for('suppliers.edit', supplier_id=supplier.id) }}">Edit</a>
+      <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteSupplier{{ supplier.id }}">Delete</button>
+    </div>
+    <div class="modal fade" id="deleteSupplier{{ supplier.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <form class="modal-content" method="post" action="{{ url_for('suppliers.delete', supplier_id=supplier.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="modal-header"><h5 class="modal-title">Delete supplier</h5><button class="btn-close" type="button" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">Delete {{ supplier.name }}?</div>
+          <div class="modal-footer"><button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn btn-danger" type="submit">Delete</button></div>
+        </form>
+      </div>
+    </div>
+  </article>
+  {% else %}
+  <div class="empty-state"><i data-lucide="truck"></i><strong>No suppliers found</strong><span>Add a supplier to unlock replenishment workflows.</span></div>
+  {% endfor %}
+</div>
+{% endblock %}

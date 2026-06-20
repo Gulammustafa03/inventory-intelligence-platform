@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Login | Inventory Intelligence Platform{% endblock %}
+{% block auth_content %}
+<div class="auth-layout">
+  <section class="auth-art">
+    <div class="auth-brand">
+      <span class="brand-mark">II</span>
+      <span>Inventory Intelligence</span>
+    </div>
+    <div class="art-panel">
+      <span class="eyebrow">Enterprise Inventory OS</span>
+      <h1>Decisions at the speed of stock movement.</h1>
+      <p>Monitor product health, supplier performance, and reorder risk in one polished operating layer.</p>
+      <div class="art-metrics">
+        <div><strong>92</strong><span>Health score</span></div>
+        <div><strong>12d</strong><span>Forecast window</span></div>
+      </div>
+    </div>
+  </section>
+  <section class="auth-card glass-card">
+    <span class="eyebrow">Secure workspace</span>
+    <h2>Welcome back</h2>
+    <p class="muted">Sign in with your platform credentials.</p>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="field-group">
+        {{ form.identifier.label(class="form-label") }}
+        {{ form.identifier(class="form-control", placeholder="Username or email") }}
+      </div>
+      <div class="field-group">
+        {{ form.password.label(class="form-label") }}
+        {{ form.password(class="form-control", placeholder="Password") }}
+      </div>
+      <div class="auth-row">
+        <label class="checkline">{{ form.remember() }} <span>{{ form.remember.label.text }}</span></label>
+        <a href="{{ url_for('auth.register') }}">Create account</a>
+      </div>
+      <button class="btn btn-primary w-100" type="submit">{{ form.submit.label.text }}</button>
+    </form>
+    <div class="social-row">
+      <button type="button" class="btn btn-outline-secondary w-100" disabled>
+        Continue with Google (Coming Soon)
+      </button>
+    </div>
+  </section>
+</div>
+{% endblock %}

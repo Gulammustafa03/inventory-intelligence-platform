@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Notifications | Inventory Intelligence Platform{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <h1>Notifications</h1>
+    <p class="muted">Recent alerts and activity for your inventory operations.</p>
+  </div>
+  <form method="post" action="{{ url_for('notifications.mark_all_read') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-outline-primary" type="submit">Mark all read</button>
+  </form>
+</div>
+<div class="panel">
+  <div class="timeline">
+    {% for notification in notifications %}
+    <div class="timeline-item{% if not notification.is_read %} active{% endif %}">
+      <div><span></span><strong>{{ notification.title }}</strong><p>{{ notification.message }}</p></div>
+      <form method="post" action="{{ url_for('notifications.mark_read') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="notification_id" value="{{ notification.id }}">
+        {% if not notification.is_read %}
+        <button class="btn btn-sm btn-primary" type="submit">Mark read</button>
+        {% endif %}
+      </form>
+    </div>
+    {% else %}
+    <div class="empty-state"><i data-lucide="bell-off"></i><strong>No notifications</strong><span>You're all caught up.</span></div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

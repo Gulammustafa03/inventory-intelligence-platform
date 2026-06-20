@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Team | Inventory Intelligence Platform{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <h1>Team</h1>
+    <p class="muted">Profile cards, role permissions, and access governance.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('users.create') }}"><i data-lucide="user-plus"></i>Create user</a>
+</div>
+<div class="team-grid">
+  {% for user in users %}
+  <article class="team-card">
+    <div class="supplier-top">
+      <span class="avatar">{{ user.username[0]|upper }}</span>
+      <div><h2>{{ user.username }}</h2><p>{{ user.email }}</p></div>
+      <span class="role-pill">{{ user.role_name }}</span>
+    </div>
+    <div class="permission-list">
+      <span><i data-lucide="shield-check"></i>{{ user.role_name }} permissions</span>
+      <span><i data-lucide="clock"></i>Joined {{ user.created_at.strftime("%Y-%m-%d") }}</span>
+      <span><i data-lucide="activity"></i>Activity history ready</span>
+    </div>
+    <div class="product-actions">
+      <a class="btn btn-outline-primary" href="{{ url_for('users.edit', user_id=user.id) }}">Edit</a>
+      {% if user.id != current_user.id %}
+      <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteUser{{ user.id }}">Delete</button>
+      {% endif %}
+    </div>
+    <div class="modal fade" id="deleteUser{{ user.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <form class="modal-content" method="post" action="{{ url_for('users.delete', user_id=user.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="modal-header"><h5 class="modal-title">Delete user</h5><button class="btn-close" type="button" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">Delete {{ user.username }}?</div>
+          <div class="modal-footer"><button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn btn-danger" type="submit">Delete</button></div>
+        </form>
+      </div>
+    </div>
+  </article>
+  {% else %}
+  <div class="empty-state"><i data-lucide="users"></i><strong>No users found</strong><span>Create a teammate to manage access.</span></div>
+  {% endfor %}
+</div>
+{% endblock %}

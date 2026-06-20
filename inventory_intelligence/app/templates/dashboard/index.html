@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | Inventory Intelligence Platform{% endblock %}
+{% block content %}
+<section class="welcome-hero">
+  <div>
+    <span class="eyebrow">{{ today }}</span>
+    <h1>Good Morning, {{ current_user.username }}</h1>
+    <p>Inventory health is {% if health_score|default(0) >= 85 %}excellent{% elif health_score|default(0) >= 60
+      %}stable{% else %}under pressure{% endif %} today.</p>
+  </div>
+  <div class="hero-meta">
+    <span class="status-pill success">Live operations</span>
+    <span class="role-pill">{{ current_user.role_name }}</span>
+  </div>
+  {% if current_user.has_role('Admin', 'Manager') %}
+  <a class="btn btn-primary" href="{{ url_for('inventory.create') }}"><i data-lucide="plus"></i>Add product</a>
+  {% endif %}
+</section>
+
+<div class="metric-grid">
+  <div class="metric-card gradient-card"><span>Total Products</span><strong data-counter="{{ total_products }}">{{
+      total_products }}</strong><small><i data-lucide="trending-up"></i>Portfolio breadth</small></div>
+  <div class="metric-card">
+    <span>Inventory Value</span>
+    <strong>₹{{ "{:,.2f}".format(total_value) }}</strong>
+    <small><i data-lucide="sparkles"></i>Capital in motion</small>
+  </div>
+  <div class="metric-card"><span>Active Suppliers</span><strong data-counter="{{ total_suppliers }}">{{ total_suppliers
+      }}</strong><small><i data-lucide="truck"></i>{{ total_categories }} categories covered</small></div>
+  <div class="metric-card danger-card"><span>Low Stock Alerts</span><strong data-counter="{{ low_stock|length }}">{{
+      low_stock|length }}</strong><small><i data-lucide="activity"></i>Requires attention</small></div>
+  <div class="metric-card"><span>Today's Sales</span><strong>₹0</strong><small><i data-lucide="line-chart"></i>Ready for
+      POS feed</small></div>
+</div>
+  <div class="dashboard-grid mt-4">
+    <section class="panel health-panel">
+      <div class="panel-header">
+        <div>
+          <span class="eyebrow">Inventory Health Score</span>
+          <h2>{{ health_score }} / 100</h2>
+        </div>
+        <span class="status-pill success">{% if health_score >= 85 %}Excellent{% elif health_score >= 60 %}Stable{% else
+          %}Needs attention{% endif %}</span>
+      </div>
+      <div class="health-body">
+        <div class="progress-ring" style="--score: {{ health_score }}">
+          <span>{{ health_score }}</span>
+        </div>
+        <div class="recommendation-list">
+          <div><i data-lucide="check-circle-2"></i><span>Review low-stock SKUs before noon.</span></div>
+          <div><i data-lucide="refresh-cw"></i><span>Sync supplier lead times weekly.</span></div>
+          <div><i data-lucide="bar-chart-3"></i><span>Keep category balance above 80 percent.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel insight-panel">
+      <span class="eyebrow">AI Insights</span>
+      <h2>AI Recommendation</h2>
+      {% if low_stock %}
+      <p>{{ low_stock[0].name }} may run out soon based on current minimum stock thresholds.</p>
+      <div class="insight-stat"><strong>{{ low_stock[0].minimum_stock + 150 }}</strong><span>Suggested reorder
+          quantity</span></div>
+      {% else %}
+      <p>No immediate stock risk detected. Keep monitoring velocity as sales data comes online.</p>
+      <div class="insight-stat"><strong>0</strong><span>Critical reorder actions</span></div>
+      {% endif %}
+    </section>
+  </div>
+
+  <div class="chart-grid mt-4">
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Inventory by Category</h2><span class="eyebrow">Units</span>
+      </div><canvas id="categoryChart"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Stock Movement</h2><span class="eyebrow">Top SKUs</span>
+      </div><canvas id="quantityChart"></canvas>
+    </div>
+  </div>
+
+  <div class="dashboard-grid mt-4">
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Low Stock Products</h2>
+        <span class="status-pill warning">{{ low_stock|length }} items</span>
+      </div>
+      <div class="premium-table">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>SKU</th>
+              <th>Quantity</th>
+              <th>Minimum</th>
+              <th>Supplier</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in low_stock %}
+            <tr>
+              <td><a href="{{ url_for('inventory.detail', product_id=product.id) }}">{{ product.name }}</a></td>
+              <td>{{ product.sku }}</td>
+              <td><span class="status-pill danger">{{ product.quantity }}</span></td>
+              <td>{{ product.minimum_stock }}</td>
+              <td>{{ product.supplier.name }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5">
+                <div class="empty-state mini"><i data-lucide="package-check"></i><strong>No low stock
+                    products</strong><span>Inventory thresholds are looking clean.</span></div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel activity-panel">
+      <div class="panel-header">
+        <h2>Activity Feed</h2><span class="eyebrow">Today</span>
+      </div>
+      <div class="timeline">
+        <div><span></span><strong>Recent product updates</strong>
+          <p>{{ total_products }} active product records monitored.</p>
+        </div>
+        <div><span></span><strong>Recent sales</strong>
+          <p>Sales integration placeholder ready for transaction events.</p>
+        </div>
+        <div><span></span><strong>Supplier activity</strong>
+          <p>{{ total_suppliers }} suppliers available for replenishment workflows.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+  {% endblock %}
+  {% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+  {% endblock %} 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+

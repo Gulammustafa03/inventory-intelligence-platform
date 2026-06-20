@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Analytics | Inventory Intelligence Platform{% endblock %}
+{% block content %}
+<div class="page-heading analytics-heading">
+  <div>
+    <h1>Analytics</h1>
+    <p class="muted">BI-grade inventory intelligence, forecasting, and operational trends.</p>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-chip active">30 days</button>
+    <button class="filter-chip">Quarter</button>
+    <button class="filter-chip">Year</button>
+    <button class="filter-chip"><i data-lucide="sliders-horizontal"></i>Filters</button>
+  </div>
+</div>
+<div class="metric-grid compact">
+  <div class="metric-card"><span>Revenue Trend</span><strong>₹0</strong><small>POS feed pending</small></div>
+  <div class="metric-card"><span>Inventory Trend</span><strong>Stable</strong><small>{{ current_user.role_name }} view</small></div>
+  <div class="metric-card"><span>Forecast Risk</span><strong>Low</strong><small>Threshold model active</small></div>
+  <div class="metric-card"><span>Supplier SLA</span><strong>94%</strong><small>Illustrative benchmark</small></div>
+</div>
+<div class="chart-grid">
+  <div class="panel"><div class="panel-header"><h2>Inventory by Category</h2><span class="eyebrow">Distribution</span></div><canvas id="categoryChart"></canvas></div>
+  <div class="panel"><div class="panel-header"><h2>Revenue Trends</h2><span class="eyebrow">Forecast</span></div><canvas id="monthlySalesChart"></canvas></div>
+  <div class="panel"><div class="panel-header"><h2>Inventory Trends</h2><span class="eyebrow">Quantity</span></div><canvas id="quantityChart"></canvas></div>
+  <div class="panel"><div class="panel-header"><h2>Low Stock Statistics</h2><span class="eyebrow">Risk</span></div><canvas id="lowStockChart"></canvas></div>
+  <div class="panel heatmap-panel">
+    <div class="panel-header"><h2>Demand Heatmap</h2><span class="eyebrow">Velocity</span></div>
+    <div class="heatmap">
+      {% for i in range(35) %}
+      <span class="heat-cell level-{{ i % 5 }}"></span>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="panel"><div class="panel-header"><h2>Supplier Performance</h2><span class="eyebrow">SLA</span></div><canvas id="supplierChart"></canvas></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

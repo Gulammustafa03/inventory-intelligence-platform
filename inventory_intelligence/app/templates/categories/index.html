@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Categories | Inventory Intelligence Platform{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <h1>Categories</h1>
+    <p class="muted">Category analytics, stock distribution, and product grouping.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('categories.create') }}"><i data-lucide="plus"></i>Create category</a>
+</div>
+<div class="category-grid">
+  {% for category in categories %}
+  <article class="category-card">
+    <div class="panel-header"><h2>{{ category.name }}</h2><span class="status-pill">{{ category.products|length }} products</span></div>
+    <div class="category-bars">
+      <span style="width: 78%"></span>
+      <span style="width: 54%"></span>
+      <span style="width: 34%"></span>
+    </div>
+    <p class="muted">Stock distribution and category performance snapshot.</p>
+    <div class="product-actions">
+      <a class="btn btn-outline-primary" href="{{ url_for('categories.edit', category_id=category.id) }}">Edit</a>
+      <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCategory{{ category.id }}">Delete</button>
+    </div>
+    <div class="modal fade" id="deleteCategory{{ category.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <form class="modal-content" method="post" action="{{ url_for('categories.delete', category_id=category.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="modal-header"><h5 class="modal-title">Delete category</h5><button class="btn-close" type="button" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">Delete {{ category.name }}?</div>
+          <div class="modal-footer"><button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn btn-danger" type="submit">Delete</button></div>
+        </form>
+      </div>
+    </div>
+  </article>
+  {% else %}
+  <div class="empty-state"><i data-lucide="tags"></i><strong>No categories found</strong><span>Create a category to power analytics and filters.</span></div>
+  {% endfor %}
+</div>
+{% endblock %}

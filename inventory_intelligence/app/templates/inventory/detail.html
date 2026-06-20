@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} | Inventory Intelligence Platform{% endblock %}
+{% block content %}
+<div class="product-hero">
+  <div>
+    <span class="eyebrow">Product detail</span>
+    <h1>{{ product.name }}</h1>
+    <p class="muted">SKU {{ product.sku }} | {{ product.category.name }} | {{ product.supplier.name }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    {% if current_user.has_role('Admin', 'Manager') %}
+    <a class="btn btn-outline-primary" href="{{ url_for('inventory.edit', product_id=product.id) }}">Edit</a>
+    <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
+    {% endif %}
+  </div>
+</div>
+<div class="detail-grid">
+  <section class="panel product-visual"><div class="product-image large"><i data-lucide="box"></i></div><p>{{ product.description or "No description" }}</p></section>
+  <section class="panel metric-stack">
+    <div><span>Price</span><strong>{{ product.price|format_currency }}</strong></div>
+    <div><span>Quantity</span><strong>{{ product.quantity }}</strong></div>
+    <div><span>Minimum Stock</span><strong>{{ product.minimum_stock }}</strong></div>
+    <div><span>Inventory Value</span><strong>{{ product.inventory_value|format_currency }}</strong></div>
+  </section>
+  <section class="panel">
+    <div class="panel-header"><h2>Supplier Information</h2><span class="status-pill success">Active</span></div>
+    <p class="muted">{{ product.supplier.name }}</p>
+    <p>{{ product.supplier.email or "No email on file" }}</p>
+    <p>{{ product.supplier.phone or "No phone on file" }}</p>
+  </section>
+  <section class="panel insight-panel">
+    <span class="eyebrow">AI Prediction</span>
+    <h2>{% if product.is_low_stock %}Reorder recommended{% else %}Stock position healthy{% endif %}</h2>
+    <p>{% if product.is_low_stock %}Current quantity is at or below the configured minimum stock threshold.{% else %}Current quantity is above the configured minimum stock threshold.{% endif %}</p>
+    <form class="stock-inline" method="post" action="{{ url_for('inventory.update_stock', product_id=product.id) }}">
+      {{ stock_form.hidden_tag() }}
+      {{ stock_form.quantity(class="form-control", min="0") }}
+      <button class="btn btn-primary" type="submit">Update stock</button>
+    </form>
+  </section>
+  <section class="panel detail-wide">
+    <div class="panel-header"><h2>Stock Movement History</h2><span class="eyebrow">Recent transactions</span></div>
+    <div class="timeline">
+      <div><span></span><strong>Stock reviewed</strong><p>Current quantity: {{ product.quantity }} units.</p></div>
+      <div><span></span><strong>Supplier linked</strong><p>{{ product.supplier.name }} assigned as replenishment source.</p></div>
+      <div><span></span><strong>Threshold configured</strong><p>Minimum stock set to {{ product.minimum_stock }} units.</p></div>
+    </div>
+  </section>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" method="post" action="{{ url_for('inventory.delete', product_id=product.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="modal-header"><h5 class="modal-title">Delete product</h5><button class="btn-close" type="button" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">Delete {{ product.name }} permanently?</div>
+      <div class="modal-footer"><button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn btn-danger" type="submit">Delete</button></div>
+    </form>
+  </div>
+</div>
+{% endblock %}
