@@ -17,7 +17,18 @@ def create_app():
     login_manager.init_app(app)
     csrf.init_app(app)
     oauth.init_app(app)
-    if app.config.get("GOOGLE_CLIENT_ID") and app.config.get("GOOGLE_CLIENT_SECRET"):
+    socketio.init_app(app)
+
+    login_manager.login_view = "auth.login"
+    login_manager.login_message_category = "warning"
+
+    app.jinja_env.filters["format_currency"] = format_currency
+    app.add_template_filter(format_currency, name="format_currency")
+
+    if (
+        app.config.get("GOOGLE_CLIENT_ID")
+        and app.config.get("GOOGLE_CLIENT_SECRET")
+    ):
         oauth.register(
             name="google",
             client_id=app.config["GOOGLE_CLIENT_ID"],
@@ -25,20 +36,11 @@ def create_app():
             access_token_url="https://oauth2.googleapis.com/token",
             authorize_url="https://accounts.google.com/o/oauth2/v2/auth",
             api_base_url="https://www.googleapis.com/oauth2/v1/",
-            client_kwargs={"scope": "openid email profile"},
+            client_kwargs={
+                "scope": "openid email profile"
+            },
             jwks_uri="https://www.googleapis.com/oauth2/v3/certs",
         )
-        socketio.init_app(app)
-
-        # Register currency filter early so templates compiled during blueprint import can use it
-        app.jinja_env.filters["format_currency"] = format_currency
-        app.add_template_filter(format_currency, name="format_currency")
-
-        login_manager.login_view = "auth.login"
-        login_manager.login_message_category = "warning"
-    # Register currency filter early so templates compiled during blueprint import can use it
-    app.jinja_env.filters["format_currency"] = format_currency
-    app.add_template_filter(format_currency, name="format_currency")
 
     @app.context_processor
     def _template_helpers():
